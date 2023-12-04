@@ -1,7 +1,7 @@
 from functools import reduce
 from operator import mul
 
-from aoc23.util import get_data_file_name
+from aoc23.common.util import get_data_file_name
 
 
 def _get_game_id(game: str) -> int:

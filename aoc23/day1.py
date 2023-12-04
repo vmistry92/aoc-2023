@@ -1,21 +1,10 @@
-from aoc23.util import get_data_file_name
-
-digits = {
-    "one": "1",
-    "two": "2",
-    "three": "3",
-    "four": "4",
-    "five": "5",
-    "six": "6",
-    "seven": "7",
-    "eight": "8",
-    "nine": "9",
-}
+from aoc23.common.constants import DIGIT_STRINGS, DIGIT_WORD_MAP
+from aoc23.common.util import get_data_file_name
 
 
 def _find_first_digit(line: str) -> str:
     for char in line:
-        if char in digits.values():
+        if char in DIGIT_STRINGS:
             return char
     raise Exception("No Digit Found")
 
@@ -26,7 +15,7 @@ def _find_last_digit(line: str) -> str:
 
 def _replace_digits(line: str) -> str:
     return_str = line
-    for k, v in digits.items():
+    for k, v in DIGIT_WORD_MAP.items():
         insert_index = int(len(k) / 2)
         return_str = return_str.replace(k, f"{k[:insert_index]}{v}{k[insert_index:]}")
     return return_str

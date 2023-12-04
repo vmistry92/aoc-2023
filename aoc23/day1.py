@@ -1,4 +1,4 @@
-import os
+from aoc23.util import get_data_file_name
 
 digits = {
     "one": "1",
@@ -33,9 +33,7 @@ def _replace_digits(line: str) -> str:
 
 
 def main() -> None:
-    file_directory = os.path.dirname(__file__)
-    data_file = os.path.join(file_directory, "../data/day1.txt")
-    with open(data_file, "r") as fp:
+    with open(get_data_file_name(1), "r") as fp:
         data = fp.readlines()
 
     p1_calibration_sum = 0

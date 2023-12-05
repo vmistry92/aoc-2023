@@ -65,66 +65,51 @@ def get_seed_location(seed: int, mappings: dict) -> int:
 
 
 def get_destination_ranges(source_range: dict[str, int], ranges: list[dict]) -> list[dict[str, int]]:
-    destination_ranges = []
-    ranges_to_process = [source_range]
+    destinations = []
+    to_process = [source_range]
 
-    while ranges_to_process:
-        range_to_process = ranges_to_process.pop()
+    while to_process:
+        current = to_process.pop()
+        current_start = current["range_start"]
+        current_end = current["range_end"]
         is_processed = False
 
-        for mapping_range in ranges:
-            if not (
-                (mapping_range["source_start"] <= range_to_process["range_start"] <= mapping_range["source_end"])
-                or (mapping_range["source_start"] <= range_to_process["range_end"] <= mapping_range["source_end"])
-            ):
+        for _range in ranges:
+            source_start = _range["source_start"]
+            source_end = _range["source_end"]
+            destination_start = _range["destination_start"]
+
+            if not ((source_start <= current_start <= source_end) or (source_start <= current_end <= source_end)):
                 continue
 
-            offset = mapping_range["destination_start"] - mapping_range["source_start"]
+            offset = destination_start - source_start
 
-            if (
-                range_to_process["range_end"] <= mapping_range["source_end"]
-                and range_to_process["range_start"] >= mapping_range["source_start"]
-            ):
-                offset = mapping_range["destination_start"] - mapping_range["source_start"]
-                destination_ranges.append(
+            if current_end <= source_end and current_start >= source_start:
+                destinations.append(
                     {
-                        "range_start": range_to_process["range_start"] + offset,
-                        "range_end": range_to_process["range_end"] + offset,
+                        "range_start": current_start + offset,
+                        "range_end": current_end + offset,
                     }
                 )
                 is_processed = True
                 break
 
-            if range_to_process["range_start"] < mapping_range["source_start"]:
-                destination_ranges.append(
-                    {
-                        "range_start": mapping_range["destination_start"],
-                        "range_end": range_to_process["range_end"] + offset,
-                    }
-                )
-                ranges_to_process.append(
-                    {"range_start": range_to_process["range_start"], "range_end": mapping_range["source_start"] - 1}
-                )
+            if current_start < source_start:
+                destinations.append({"range_start": destination_start, "range_end": current_end + offset})
+                to_process.append({"range_start": current_start, "range_end": source_start - 1})
                 is_processed = True
                 break
 
-            if range_to_process["range_end"] > mapping_range["source_end"]:
-                destination_ranges.append(
-                    {
-                        "range_start": range_to_process["range_start"] + offset,
-                        "range_end": mapping_range["destination_end"],
-                    }
-                )
-                ranges_to_process.append(
-                    {"range_start": mapping_range["source_end"] + 1, "range_end": range_to_process["range_end"]}
-                )
+            if current_end > source_end:
+                destinations.append({"range_start": current_start + offset, "range_end": _range["destination_end"]})
+                to_process.append({"range_start": source_end + 1, "range_end": current_end})
                 is_processed = True
                 break
 
         if not is_processed:
-            destination_ranges.append(range_to_process)
+            destinations.append(current)
 
-    return destination_ranges
+    return destinations
 
 
 def get_seed_range_locations(seed_range: dict[str, int], mappings: dict) -> list:

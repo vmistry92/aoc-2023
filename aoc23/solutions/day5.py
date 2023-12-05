@@ -43,27 +43,6 @@ def process_input(almanac: list[str]) -> tuple[list[int], list[dict]]:
     return seeds, mappings
 
 
-def get_destination(source: int, ranges: list[dict]) -> int:
-    for _range in ranges:
-        if _range["source_start"] <= source <= _range["source_end"]:
-            offset = _range["destination_start"] - _range["source_start"]
-            return source + offset
-
-    return source
-
-
-def get_seed_location(seed: int, mappings: dict) -> int:
-    route = {"seed": seed}
-    source = seed
-
-    for _, mapping in mappings.items():
-        destination = get_destination(source, mapping["ranges"])
-        route[mapping["destination"]] = destination
-        source = destination
-
-    return route["location"]
-
-
 def get_destination_ranges(source_range: dict[str, int], ranges: list[dict]) -> list[dict[str, int]]:
     destinations = []
     to_process = [source_range]
@@ -127,25 +106,25 @@ def get_seed_range_locations(seed_range: dict[str, int], mappings: dict) -> list
 
 
 def main() -> None:
-    p1 = 0
-    p2 = 0
-
     with open(get_data_file_name(5), "r") as fp:
         almanac = fp.readlines()
         seeds, mappings = process_input(almanac)
-        p1 = min([get_seed_location(seed, mappings) for seed in seeds])
 
-        seed_ranges = [
-            {"range_start": int(seeds[i]), "range_end": int(seeds[i]) + int(seeds[i + 1]) - 1}
-            for i in range(0, len(seeds), 2)
-        ]
-        seed_range_locations = []
-        for seed_range in seed_ranges:
-            seed_range_locations.extend(get_seed_range_locations(seed_range, mappings))
-        p2 = min([srl["range_start"] for srl in seed_range_locations])
+        seed_ranges = {
+            1: [{"range_start": int(seeds[i]), "range_end": int(seeds[i])} for i in range(len(seeds))],
+            2: [
+                {"range_start": int(seeds[i]), "range_end": int(seeds[i]) + int(seeds[i + 1]) - 1}
+                for i in range(0, len(seeds), 2)
+            ],
+        }
 
-    print(f"Part 1: {p1}")
-    print(f"Part 2: {p2}")
+        for part, seed_range in seed_ranges.items():
+            seed_range_locations = []
+            for sr in seed_range:
+                seed_range_locations.extend(get_seed_range_locations(sr, mappings))
+
+            answer = min([srl["range_start"] for srl in seed_range_locations])
+            print(f"Part {part}: {answer}")
 
 
 if __name__ == "__main__":

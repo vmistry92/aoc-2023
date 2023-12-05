@@ -1,13 +1,7 @@
 import pytest
 
 from aoc23.common.util import get_data_file_name
-from aoc23.solutions.day5 import (
-    get_destination,
-    get_destination_ranges,
-    get_seed_location,
-    process_input,
-    process_mapping_name,
-)
+from aoc23.solutions.day5 import get_destination_ranges, process_input, process_mapping_name
 
 
 @pytest.fixture
@@ -39,19 +33,6 @@ def test_process_input_seed_to_soil_mapping_ranges(sample_input):
         {"destination_start": 50, "destination_end": 51, "source_start": 98, "source_end": 99},
         {"destination_start": 52, "destination_end": 99, "source_start": 50, "source_end": 97},
     ]
-
-
-@pytest.mark.parametrize("seed,location", [(79, 82), (14, 43), (55, 86), (13, 35)])
-def test_get_seed_locations(seed, location, sample_input):
-    _, mappings = process_input(sample_input)
-    assert location == get_seed_location(seed, mappings)
-
-
-@pytest.mark.parametrize("seed,soil", [(79, 81), (14, 14), (55, 57), (13, 13), (100, 100)])
-def test_get_destinations_seed_to_soil(seed, soil, sample_input):
-    _, mappings = process_input(sample_input)
-    seed_to_soil_map = mappings["seed-to-soil"]
-    assert soil == get_destination(seed, seed_to_soil_map["ranges"])
 
 
 @pytest.mark.parametrize(

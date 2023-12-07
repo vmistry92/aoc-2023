@@ -39,7 +39,7 @@ def get_hand_type(hand: str, j_is_wildcard: bool = False) -> HandType:
     if distinct_card_count == 1:
         hand_type = HandType.FIVE_OF_A_KIND
     elif distinct_card_count == 2:
-        hand_type = HandType.FOUR_OF_KIND if distinct_cards[cards[0]] in (1, 4) else HandType.FULL_HOUSE
+        hand_type = HandType.FOUR_OF_KIND if max(distinct_cards.values()) == 4 else HandType.FULL_HOUSE
     elif distinct_card_count == 3:
         hand_type = HandType.THREE_OF_A_KIND if max(distinct_cards.values()) == 3 else HandType.TWO_PAIR
     elif distinct_card_count == 4:

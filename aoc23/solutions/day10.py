@@ -94,21 +94,20 @@ def main():
     with open(get_data_file_name(10), "r") as fp:
         grid = [[c for c in l.replace("\n", "")] for l in fp.readlines()]
 
-    distance = 0
     start = find_start(grid)
-    visited = {start: distance}
+    visited = {start}
     to_visit = get_valid_connections(start, grid)
 
     while to_visit:
-        distance += 1
+        p1 += 1
         adjacent_cells = []
         for cell in to_visit:
-            visited.update({cell: distance})
+            visited.add(cell)
             adjacent_cells.extend(get_valid_connections(cell, grid))
 
         to_visit = [ac for ac in adjacent_cells if ac not in visited]
 
-    # If the number of observed vertical pipes in the row and on the path is odd then we 
+    # If the number of observed vertical pipes in the row and on the path is odd then we
     # know it is inside the loop. The start is a valid vertical pipe in the puzzle input
     for yi, row in enumerate(grid):
         inside = False
@@ -118,7 +117,7 @@ def main():
             else:
                 p2 += 1 if inside else 0
 
-    print(f"Part 1: {max(visited.values())}")
+    print(f"Part 1: {p1}")
     print(f"Part 2: {p2}")
 
 

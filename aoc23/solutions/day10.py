@@ -107,8 +107,9 @@ def main():
 
         to_visit = [ac for ac in adjacent_cells if ac not in visited]
 
-    # If the number of observed vertical pipes in the row and on the path is odd then we
-    # know it is inside the loop. The start is a valid vertical pipe in the puzzle input
+    # If the number of observed pipes in the row that can connect north and are on the path 
+    # is odd then we know anything to the right is inside the loop. The start is a valid north 
+    # pipe in the puzzle input as it is a | and |, J, L all have connections to the North.
     for yi, row in enumerate(grid):
         inside = False
         for xi, cell in enumerate(row):

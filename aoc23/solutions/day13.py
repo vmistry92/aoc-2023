@@ -17,51 +17,63 @@ def _get_patterns(puzzle_input: list[str]) -> list[list[str]]:
     return patterns + [pattern]
 
 
-def find_symmetrical_row(pattern: list[str]) -> int:
+def _rotate_pattern(pattern: list[str]) -> list[str]:
+    transposed = np.transpose([[c for c in row] for row in pattern])
+    return ["".join(l) for l in transposed]
+
+
+def string_difference(a: str, b: str) -> int:
+    diffs = 0
+    for ac, bc in zip(a, b):
+        diffs += 0 if ac == bc else 1
+    return diffs
+
+
+def find_symmetrical_row(pattern: list[str], exclude_row: int, max_diffs: int) -> int:
     for i in range(1, len(pattern)):
-        top = pattern[:i]
-        bottom = pattern[i:]
-        window_size = min(len(top), len(bottom))
+        if i == exclude_row:
+            continue
 
-        top = top[-window_size:]
-        bottom = reversed(bottom[:window_size])
+        differences = 0
+        window = 1
+        window_limit = min(i, len(pattern) - i)
+        is_line_of_symmetry = True
 
-        if all(t == b for t, b in zip(top, bottom)):
+        while window <= window_limit:
+            differences += string_difference(pattern[i + window - 1], pattern[i - window])
+            is_line_of_symmetry = differences <= max_diffs
+            if not is_line_of_symmetry:
+                break
+            window += 1
+
+        if is_line_of_symmetry:
             return i
 
     return 0
 
 
-def find_symmetrical_col(pattern: list[str]) -> int:
-    transposed = np.transpose([[c for c in row] for row in pattern])
-    return find_symmetrical_row(["".join(l) for l in transposed])
-
-
-def fix_smudge(pattern: list[str]) -> list[str]:
-    return pattern
+def find_symmetry_with_differences(pattern: list[str], row: int, col: int, max_diffs: int) -> tuple[int, int]:
+    new_row = find_symmetrical_row(pattern, row, max_diffs)
+    new_col = 0 if new_row else find_symmetrical_row(_rotate_pattern(pattern), col, max_diffs)
+    return (new_row, new_col)
 
 
 def main():
-    p1 = 0
-    p2 = 0
-
     with open(get_data_file_name(13), "r") as fp:
         puzzle_input = [l.replace("\n", "") for l in fp.readlines()]
 
+    answers = {0: 0, 1: 0}
     patterns = _get_patterns(puzzle_input)
 
     for pattern in patterns:
-        row = find_symmetrical_row(pattern)
-        col = find_symmetrical_col(pattern)
-        p1 += col + (100 * row)
+        row = -1
+        col = -1
+        for i in range(2):
+            row, col = find_symmetry_with_differences(pattern, row, col, i)
+            answers[i] += row * 100 + col
 
-        fixed_pattern = fix_smudge(pattern)
-        row = find_symmetrical_row(fixed_pattern)
-        col = find_symmetrical_col(fixed_pattern)
-        p2 += col + (100 * row)
-
-    print(f"Part 1: {p1}")
-    print(f"Part 2: {p2}")
+    for part, answer in answers.items():
+        print(f"Part {part + 1}: {answer}")
 
 
 if __name__ == "__main__":

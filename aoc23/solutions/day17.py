@@ -1,4 +1,4 @@
-from queue import Queue
+from queue import PriorityQueue
 
 from aoc23.common.util import get_data_file_name
 
@@ -28,15 +28,17 @@ def get_neighbors(puzzle_input: list[list[str]], current: tuple[int, int]) -> li
     return neighbors
 
 
-def breadth_first_search(puzzle_input: list[list[str]]) -> None:
+def dijkstra(puzzle_input: list[list[str]]) -> None:
     start = (0, 0)
     goal = (len(puzzle_input[0]) - 1, len(puzzle_input) - 1)
 
-    frontier = Queue()
-    frontier.put(start)
+    frontier = PriorityQueue()
+    frontier.put(start, 0)
 
     came_from = dict()
+    cost_so_far = dict()
     came_from[start] = None
+    cost_so_far[start] = 0
 
     while not frontier.empty():
         current = frontier.get()
@@ -45,10 +47,14 @@ def breadth_first_search(puzzle_input: list[list[str]]) -> None:
             break
 
         for next in get_neighbors(puzzle_input, current):
-            if next not in came_from:
-                frontier.put(next)
+            next_x, next_y = next
+            new_cost = cost_so_far[current] + puzzle_input[next_y][next_x]
+            if next not in came_from or new_cost < cost_so_far[next]:
+                cost_so_far[next] = new_cost
+                frontier.put(next, new_cost)
                 came_from[next] = current
 
+    # Trace the path backwards
     current = goal
     path = []
     while current != start:
@@ -56,6 +62,7 @@ def breadth_first_search(puzzle_input: list[list[str]]) -> None:
         current = came_from[current]
     path.append(start)
 
+    # Modify the puzzle input to print
     for y, row in enumerate(puzzle_input):
         print_row = ""
         for x, _ in enumerate(row):
@@ -63,6 +70,7 @@ def breadth_first_search(puzzle_input: list[list[str]]) -> None:
 
         print(print_row)
 
+    # Print the graph and the path
     path_str = str(path.pop())
     for i, n in enumerate(reversed(path)):
         if i > 0 and i % 5 == 0:
@@ -79,7 +87,7 @@ def main() -> None:
     p1 = 0
     p2 = 0
 
-    breadth_first_search(puzzle_input)
+    dijkstra(puzzle_input)
 
     print(f"Part 1: {p1}")
     print(f"Part 2: {p2}")
